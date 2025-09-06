@@ -1,6 +1,5 @@
 'use client';
 
-
 import { useEffect, useMemo, useState } from 'react';
 import {
   useAccount,
@@ -22,7 +21,7 @@ const erc20Abi = [
   { type: 'function', name: 'allowance', stateMutability: 'view', inputs: [{ name: 'owner', type: 'address' }, { name: 'spender', type: 'address' }], outputs: [{ type: 'uint256', name: '' }] },
   { type: 'function', name: 'decimals', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint8', name: '' }] },
   { type: 'function', name: 'balanceOf', stateMutability: 'view', inputs: [{ name: 'account', type: 'address' }], outputs: [{ type: 'uint256', name: '' }] },
-] as const;
+];
 
 // --- CONTRACT ADDRESSES (update these) ---
 const revenueDistributorAddress = '0x3a4E9Fa1D8cE4Ee6b75Ef498903eBc8C1E92e507';
@@ -40,21 +39,21 @@ export default function Home() {
 
   useEffect(() => setIsClient(true), []);
 
-  // --- ABI presence sanity check (prevents “Function not found” confusion) ---
-  const distributorAbi = distributorArtifact.abi as any[];
+  // --- ABI presence sanity check (prevents "Function not found" confusion) ---
+  const distributorAbi = distributorArtifact.abi;
   const hasDepositRevenue = useMemo(
     () => distributorAbi.some((f) => f.type === 'function' && f.name === 'depositRevenue'),
     [distributorAbi]
   );
 
   // --- READS ---
-  // Pull USDC address from contract (since it’s immutable public)
+  // Pull USDC address from contract (since it's immutable public)
   const { data: usdcAddressData } = useReadContract({
     address: revenueDistributorAddress,
     abi: distributorAbi,
     functionName: 'usdcToken',
   });
-  const usdcAddress = usdcAddressData as `0x${string}` | undefined;
+  const usdcAddress = usdcAddressData;
 
   // Distributor totals
   const { data: totalSupplyData, refetch: refetchSupply } = useReadContract({
@@ -67,20 +66,20 @@ export default function Home() {
     abi: distributorAbi,
     functionName: 'maxSupply',
   });
-  const totalSupply = Number(totalSupplyData ?? 0n);
-  const maxSupply = Number(maxSupplyData ?? 0n);
+  const totalSupply = Number(totalSupplyData ?? BigInt(0));
+  const maxSupply = Number(maxSupplyData ?? BigInt(0));
 
   // Claimable (USDC, 6 decimals)
   const { data: claimableRaw, refetch: refetchClaimable } = useReadContract({
     address: revenueDistributorAddress,
     abi: distributorAbi,
     functionName: 'getClaimableRevenue',
-    args: [tokenIdToClaim ? BigInt(tokenIdToClaim) : 0n],
+    args: [tokenIdToClaim ? BigInt(tokenIdToClaim) : BigInt(0)],
     query: { enabled: !!tokenIdToClaim },
   });
 
   // --- ACTIONS ---
-  // Mint is “free for demo” per your Solidity (USDC transfer commented out)
+  // Mint is "free for demo" per your Solidity (USDC transfer commented out)
   const handleMint = () => {
     const mockTokenURI = `https://example.com/nft/${totalSupply + 1}.json`;
     writeContract({
@@ -88,7 +87,7 @@ export default function Home() {
       abi: distributorAbi,
       functionName: 'mint',
       args: [mockTokenURI],
-      // NOTE: no "value" here — mint() doesn’t accept native MATIC in your contract
+      // NOTE: no "value" here — mint() doesn't accept native MATIC in your contract
     });
   };
 
@@ -146,7 +145,7 @@ export default function Home() {
   if (!isClient) return null;
 
   // Claimable formatted as USDC
-  const claimableUSDC = claimableRaw ? `${formatUnits(claimableRaw as bigint, 6)} USDC` : null;
+  const claimableUSDC = claimableRaw ? `${formatUnits(claimableRaw, 6)} USDC` : null;
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-8 bg-gray-900 text-white font-sans">
@@ -156,15 +155,32 @@ export default function Home() {
             FlowMint
           </h1>
           <p className="text-gray-400 mt-2">Tokenize Your Future Revenue</p>
+          <div className="mt-4 space-x-4">
+            <a
+              href="/login"
+              className="inline-block px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200"
+            >
+              Login / Register
+            </a>
+            <a
+              href="/home"
+              className="inline-block px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200"
+            >
+              Browse Projects
+            </a>
+          </div>
         </div>
 
         {!isConnected ? (
-          <button
-            onClick={() => connect({ connector: injected() })}
-            className="w-full px-4 py-3 font-semibold text-lg bg-purple-600 rounded-lg hover:bg-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            Connect Wallet
-          </button>
+          <div className="text-center">
+            <p className="mb-6 text-gray-300">Connect your wallet to interact with smart contracts</p>
+            <button
+              onClick={() => connect({ connector: injected() })}
+              className="w-full px-4 py-3 font-semibold text-lg bg-purple-600 rounded-lg hover:bg-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+            >
+              Connect Wallet
+            </button>
+          </div>
         ) : (
           <div className="p-4 bg-gray-900/50 rounded-lg text-center border border-gray-700">
             <p className="text-sm text-gray-400">Connected as:</p>
@@ -277,7 +293,7 @@ export default function Home() {
           )}
           {error && (
             <div className="p-4 bg-red-600/30 border border-red-500 rounded-lg text-center">
-              <p className="text-xs break-all">Error: {error?.shortMessage || (error as any)?.message}</p>
+              <p className="text-xs break-all">Error: {error?.shortMessage || error?.message || 'Unknown error'}</p>
             </div>
           )}
         </div>
