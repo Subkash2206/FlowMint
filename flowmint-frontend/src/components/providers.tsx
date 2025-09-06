@@ -11,7 +11,11 @@ const config = createConfig({
   chains: [polygonAmoy],
   connectors: [injected()],
   transports: {
-    [polygonAmoy.id]: http(),
+    [polygonAmoy.id]: http('https://rpc-amoy.polygon.technology', {
+      batch: true,
+      retryCount: 3,
+      retryDelay: 1000,
+    }),
   },
 });
 

@@ -70,6 +70,15 @@ const Dashboard = () => {
             </div>
             
             <div className="flex items-center space-x-4">
+              <a
+                href="/home"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center space-x-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <span>Discover Projects</span>
+              </a>
               <div className="text-right">
                 <p className="text-sm text-gray-300">Welcome back,</p>
                 <p className="font-semibold text-white">{user.username || user.wallet_address.slice(0, 6)}...</p>

@@ -65,6 +65,15 @@ const BlockchainActions = ({ userRole }) => {
     query: { enabled: !!tokenIdToClaim },
   });
 
+  // USDC allowance check
+  const { data: allowanceData } = useReadContract({
+    address: usdcAddress,
+    abi: erc20Abi,
+    functionName: 'allowance',
+    args: [address, revenueDistributorAddress],
+    query: { enabled: !!usdcAddress && !!address },
+  });
+
   // Actions
   const handleMint = () => {
     const mockTokenURI = `https://example.com/nft/${totalSupply + 1}.json`;
@@ -98,13 +107,30 @@ const BlockchainActions = ({ userRole }) => {
       alert('Enter a valid USDC amount.');
       return;
     }
-    const amount = parseUnits(revenueAmount, 6);
-    await writeContractAsync({
-      address: revenueDistributorAddress,
-      abi: distributorAbi,
-      functionName: 'depositRevenue',
-      args: [amount],
-    });
+    if (!usdcAddress) {
+      alert('USDC address not found. Please check contract deployment.');
+      return;
+    }
+    
+    try {
+      const amount = parseUnits(revenueAmount, 6);
+      
+      // Check if we need to approve USDC
+      if (allowanceData && allowanceData < amount) {
+        alert('Please approve USDC first before depositing revenue.');
+        return;
+      }
+      
+      await writeContractAsync({
+        address: revenueDistributorAddress,
+        abi: distributorAbi,
+        functionName: 'depositRevenue',
+        args: [amount],
+      });
+    } catch (error) {
+      console.error('Deposit error:', error);
+      alert('Transaction failed. Please check your USDC balance and approval.');
+    }
   };
 
   const handleClaimRevenue = () => {

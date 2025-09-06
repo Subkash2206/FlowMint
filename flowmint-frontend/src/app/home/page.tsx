@@ -4,13 +4,43 @@ import React, { useState, useEffect } from "react";
 import ProjectCard from "@/components/ProjectCard";
 import { useApi } from "@/hooks/useApi";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAccount, useConnect, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
+import { injected } from 'wagmi/connectors';
+import distributorArtifact from '@/lib/abi/RevenueDistributor.json';
 
 const Home = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showMintSection, setShowMintSection] = useState(false);
   const api = useApi();
+  const { user } = useAuth();
+  
+  // Web3 hooks
+  const { address, isConnected, chainId } = useAccount();
+  const { connect } = useConnect();
+  const { writeContract, writeContractAsync, data: txHash, isPending, error } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
+  
+  // Contract data
+  const revenueDistributorAddress = '0x3a4E9Fa1D8cE4Ee6b75Ef498903eBc8C1E92e507';
+  const distributorAbi = distributorArtifact.abi;
+  
+  // Get total supply
+  const { data: totalSupplyData } = useReadContract({
+    address: revenueDistributorAddress,
+    abi: distributorAbi,
+    functionName: 'totalSupply',
+  });
+  const { data: maxSupplyData } = useReadContract({
+    address: revenueDistributorAddress,
+    abi: distributorAbi,
+    functionName: 'maxSupply',
+  });
+  const totalSupply = Number(totalSupplyData ?? BigInt(0));
+  const maxSupply = Number(maxSupplyData ?? BigInt(0));
 
   useEffect(() => {
     fetchProjects();
@@ -25,6 +55,28 @@ const Home = () => {
       console.error('Error fetching projects:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMint = async () => {
+    try {
+      const mockTokenURI = `https://example.com/nft/${totalSupply + 1}.json`;
+      await writeContractAsync({
+        address: revenueDistributorAddress,
+        abi: distributorAbi,
+        functionName: 'mint',
+        args: [mockTokenURI],
+        gas: 500000n,
+      });
+    } catch (error) {
+      console.error('Mint error:', error);
+      if (error.message?.includes('User rejected')) {
+        alert('Transaction was cancelled by user.');
+      } else if (error.message?.includes('insufficient funds')) {
+        alert('Insufficient funds for gas. Please add MATIC to your wallet.');
+      } else {
+        alert('Minting failed. Please check your wallet connection and try again.');
+      }
     }
   };
 
@@ -68,6 +120,17 @@ const Home = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
+              {user?.role === 'investor' && (
+                <button
+                  onClick={() => setShowMintSection(!showMintSection)}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span>Mint NFT</span>
+                </button>
+              )}
               <a
                 href="/dashboard"
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors duration-200 flex items-center space-x-2"
@@ -83,6 +146,56 @@ const Home = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Mint NFT Section for Investors */}
+        {showMintSection && user?.role === 'investor' && (
+          <div className="mb-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-white">Mint Investment NFT</h2>
+              <button
+                onClick={() => setShowMintSection(false)}
+                className="text-gray-400 hover:text-white transition-colors duration-200"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {!isConnected ? (
+              <div className="text-center py-8">
+                <p className="text-gray-300 mb-4">Connect your wallet to mint an NFT</p>
+                <button
+                  onClick={() => connect({ connector: injected() })}
+                  className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200"
+                >
+                  Connect Wallet
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between text-gray-300">
+                  <span className="text-lg">NFTs Minted:</span>
+                  <span className="text-lg font-bold">
+                    {totalSupply} / {maxSupply || '∞'}
+                  </span>
+                </div>
+                <button
+                  onClick={handleMint}
+                  disabled={isPending || (maxSupply ? totalSupply >= maxSupply : false)}
+                  className="w-full px-4 py-3 font-semibold text-lg bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  {isPending ? 'Minting...' : 'Mint NFT (Free Demo)'}
+                </button>
+                {chainId !== 80002 && (
+                  <div className="p-3 bg-yellow-600/20 border border-yellow-500 rounded text-yellow-300 text-sm">
+                    ⚠️ Please switch to Polygon Amoy testnet (Chain ID: 80002)
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
           <aside className="lg:w-64">

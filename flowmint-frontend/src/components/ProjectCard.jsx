@@ -98,10 +98,16 @@ const ProjectCard = ({ project, isOwner = false }) => {
           
           {isOwner ? (
             <div className="flex space-x-2">
-              <button className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-lg text-sm hover:bg-purple-500/30 transition-colors duration-200">
+              <button 
+                onClick={() => alert(`Edit project: ${project.name}\n\nThis would open an edit modal where you can update project details, target revenue, and other settings.`)}
+                className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-lg text-sm hover:bg-purple-500/30 transition-colors duration-200"
+              >
                 Edit
               </button>
-              <button className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-lg text-sm hover:bg-blue-500/30 transition-colors duration-200">
+              <button 
+                onClick={() => alert(`Project Details:\n\nName: ${project.name}\nDescription: ${project.description}\nCategory: ${project.category}\nTarget Revenue: $${project.target_revenue?.toLocaleString() || 'N/A'}\nCurrent Revenue: $${project.current_revenue.toLocaleString()}\nNFT Token ID: ${project.nft_token_id}\nStatus: ${project.is_active ? 'Active' : 'Inactive'}`)}
+                className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-lg text-sm hover:bg-blue-500/30 transition-colors duration-200"
+              >
                 View
               </button>
             </div>

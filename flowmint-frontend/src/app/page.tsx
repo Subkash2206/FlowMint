@@ -9,7 +9,7 @@ import {
   useWaitForTransactionReceipt,
 } from 'wagmi';
 import { injected } from 'wagmi/connectors';
-import { parseUnits, formatUnits } from 'viem';
+import { parseUnits, formatUnits, getContract } from 'viem';
 
 // --- ABIs (from your Hardhat artifacts; MUST be fresh) ---
 import distributorArtifact from '@/lib/abi/RevenueDistributor.json';
@@ -28,7 +28,7 @@ const revenueDistributorAddress = '0x3a4E9Fa1D8cE4Ee6b75Ef498903eBc8C1E92e507';
 const flowmintNftAddress = '0x417D69F9E27e2184AC89C6Ef4206242E65A685FD';
 
 export default function Home() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
   const { connect } = useConnect();
   const { writeContract, writeContractAsync, data: txHash, isPending, error } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
@@ -36,6 +36,9 @@ export default function Home() {
   const [isClient, setIsClient] = useState(false);
   const [revenueAmount, setRevenueAmount] = useState(''); // human-readable USDC (e.g., "25.5")
   const [tokenIdToClaim, setTokenIdToClaim] = useState('');
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [transactionStatus, setTransactionStatus] = useState('');
+  const [transactionHash, setTransactionHash] = useState('');
 
   useEffect(() => setIsClient(true), []);
 
@@ -78,17 +81,46 @@ export default function Home() {
     query: { enabled: !!tokenIdToClaim },
   });
 
+  // USDC allowance check
+  const { data: allowanceData } = useReadContract({
+    address: usdcAddress,
+    abi: erc20Abi,
+    functionName: 'allowance',
+    args: [address, revenueDistributorAddress],
+    query: { enabled: !!usdcAddress && !!address },
+  });
+
   // --- ACTIONS ---
   // Mint is "free for demo" per your Solidity (USDC transfer commented out)
-  const handleMint = () => {
-    const mockTokenURI = `https://example.com/nft/${totalSupply + 1}.json`;
-    writeContract({
-      address: revenueDistributorAddress,
-      abi: distributorAbi,
-      functionName: 'mint',
-      args: [mockTokenURI],
-      // NOTE: no "value" here — mint() doesn't accept native MATIC in your contract
-    });
+  const handleMint = async () => {
+    try {
+      setShowTransactionModal(true);
+      setTransactionStatus('pending');
+      setTransactionHash('');
+      
+      const mockTokenURI = `https://example.com/nft/${totalSupply + 1}.json`;
+      const hash = await writeContractAsync({
+        address: revenueDistributorAddress,
+        abi: distributorAbi,
+        functionName: 'mint',
+        args: [mockTokenURI],
+        gas: 500000n, // Add gas limit
+        // NOTE: no "value" here — mint() doesn't accept native MATIC in your contract
+      });
+      
+      setTransactionHash(hash);
+      setTransactionStatus('confirming');
+    } catch (error) {
+      console.error('Mint error:', error);
+      setTransactionStatus('error');
+      if (error.message?.includes('User rejected')) {
+        alert('Transaction was cancelled by user.');
+      } else if (error.message?.includes('insufficient funds')) {
+        alert('Insufficient funds for gas. Please add MATIC to your wallet.');
+      } else {
+        alert('Minting failed. Please check your wallet connection and try again.');
+      }
+    }
   };
 
   // Approve USDC for the distributor to pull
@@ -96,13 +128,33 @@ export default function Home() {
     if (!usdcAddress || !isConnected) return;
     if (!revenueAmount || Number(revenueAmount) <= 0) return;
 
-    const amount = parseUnits(revenueAmount, 6); // USDC = 6 decimals
-    await writeContractAsync({
-      address: usdcAddress,
-      abi: erc20Abi,
-      functionName: 'approve',
-      args: [revenueDistributorAddress, amount],
-    });
+    try {
+      setShowTransactionModal(true);
+      setTransactionStatus('pending');
+      setTransactionHash('');
+      
+      const amount = parseUnits(revenueAmount, 6); // USDC = 6 decimals
+      const hash = await writeContractAsync({
+        address: usdcAddress,
+        abi: erc20Abi,
+        functionName: 'approve',
+        args: [revenueDistributorAddress, amount],
+        gas: 100000n, // Add gas limit
+      });
+      
+      setTransactionHash(hash);
+      setTransactionStatus('confirming');
+    } catch (error) {
+      console.error('Approve error:', error);
+      setTransactionStatus('error');
+      if (error.message?.includes('User rejected')) {
+        alert('Transaction was cancelled by user.');
+      } else if (error.message?.includes('insufficient funds')) {
+        alert('Insufficient funds for gas. Please add MATIC to your wallet.');
+      } else {
+        alert('USDC approval failed. Please try again.');
+      }
+    }
   };
 
   // Deposit revenue (USDC) — requires ABI to have depositRevenue(uint256)
@@ -116,27 +168,83 @@ export default function Home() {
       alert('Enter a valid USDC amount.');
       return;
     }
-    const amount = parseUnits(revenueAmount, 6);
-    await writeContractAsync({
-      address: revenueDistributorAddress,
-      abi: distributorAbi,
-      functionName: 'depositRevenue',
-      args: [amount],
-    });
+    if (!usdcAddress) {
+      alert('USDC address not found. Please check contract deployment.');
+      return;
+    }
+    
+    try {
+      setShowTransactionModal(true);
+      setTransactionStatus('pending');
+      setTransactionHash('');
+      
+      const amount = parseUnits(revenueAmount, 6);
+      
+      // Check if we need to approve USDC
+      if (allowanceData && allowanceData < amount) {
+        alert('Please approve USDC first before depositing revenue.');
+        setShowTransactionModal(false);
+        return;
+      }
+      
+      const hash = await writeContractAsync({
+        address: revenueDistributorAddress,
+        abi: distributorAbi,
+        functionName: 'depositRevenue',
+        args: [amount],
+        gas: 300000n, // Add gas limit
+      });
+      
+      setTransactionHash(hash);
+      setTransactionStatus('confirming');
+    } catch (error) {
+      console.error('Deposit error:', error);
+      setTransactionStatus('error');
+      if (error.message?.includes('User rejected')) {
+        alert('Transaction was cancelled by user.');
+      } else if (error.message?.includes('insufficient funds')) {
+        alert('Insufficient funds for gas. Please add MATIC to your wallet.');
+      } else if (error.message?.includes('allowance')) {
+        alert('Please approve USDC first before depositing revenue.');
+      } else {
+        alert('Transaction failed. Please check your USDC balance and approval.');
+      }
+    }
   };
 
-  const handleClaimRevenue = () => {
+  const handleClaimRevenue = async () => {
     if (!tokenIdToClaim) return;
-    writeContract({
-      address: revenueDistributorAddress,
-      abi: distributorAbi,
-      functionName: 'claimRevenue',
-      args: [BigInt(tokenIdToClaim)],
-    });
+    try {
+      setShowTransactionModal(true);
+      setTransactionStatus('pending');
+      setTransactionHash('');
+      
+      const hash = await writeContractAsync({
+        address: revenueDistributorAddress,
+        abi: distributorAbi,
+        functionName: 'claimRevenue',
+        args: [BigInt(tokenIdToClaim)],
+        gas: 200000n, // Add gas limit
+      });
+      
+      setTransactionHash(hash);
+      setTransactionStatus('confirming');
+    } catch (error) {
+      console.error('Claim error:', error);
+      setTransactionStatus('error');
+      if (error.message?.includes('User rejected')) {
+        alert('Transaction was cancelled by user.');
+      } else if (error.message?.includes('insufficient funds')) {
+        alert('Insufficient funds for gas. Please add MATIC to your wallet.');
+      } else {
+        alert('Claim failed. Please check your token ID and try again.');
+      }
+    }
   };
 
   useEffect(() => {
     if (isConfirmed) {
+      setTransactionStatus('success');
       refetchSupply();
       refetchClaimable();
     }
@@ -185,6 +293,11 @@ export default function Home() {
           <div className="p-4 bg-gray-900/50 rounded-lg text-center border border-gray-700">
             <p className="text-sm text-gray-400">Connected as:</p>
             <p className="font-mono break-all text-xs text-green-400">{address}</p>
+            {chainId !== 80002 && (
+              <div className="mt-2 p-2 bg-yellow-600/20 border border-yellow-500 rounded text-yellow-300 text-xs">
+                ⚠️ Please switch to Polygon Amoy testnet (Chain ID: 80002)
+              </div>
+            )}
           </div>
         )}
 
@@ -211,21 +324,16 @@ export default function Home() {
         {/* CREATOR */}
         <section className="space-y-4 bg-gray-900/50 p-6 rounded-lg border border-gray-700">
           <h2 className="text-xl sm:text-2xl font-semibold border-b border-gray-600 pb-2 text-gray-200">
-            For Creators (USDC)
+            For Creators (Token Conversion)
           </h2>
-          {!hasDepositRevenue && (
-            <div className="p-3 rounded bg-red-900/30 border border-red-700 text-sm">
-              ABI missing <code>depositRevenue</code>. Replace <code>RevenueDistributor.json</code> in your frontend with the latest artifact.
-            </div>
-          )}
-          <div className="text-sm text-gray-400">
-            USDC token: <span className="font-mono">{usdcAddress ?? '—'}</span>
+          <div className="text-sm text-gray-400 mb-4">
+            Convert your FlowMint tokens to real revenue and distribute to investors
           </div>
           <input
             type="number"
             value={revenueAmount}
             onChange={(e) => setRevenueAmount(e.target.value)}
-            placeholder="Enter revenue amount in USDC (e.g., 25.5)"
+            placeholder="Enter revenue amount to convert (e.g., 25.5)"
             className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none transition-all"
           />
           <div className="grid grid-cols-2 gap-3">
@@ -234,14 +342,14 @@ export default function Home() {
               disabled={!isConnected || isPending || !revenueAmount}
               className="w-full px-4 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              Approve USDC
+              Convert Tokens
             </button>
             <button
               onClick={handleDepositRevenue}
-              disabled={!isConnected || isPending || !revenueAmount || !hasDepositRevenue}
+              disabled={!isConnected || isPending || !revenueAmount}
               className="w-full px-4 py-2 bg-orange-600 rounded-lg hover:bg-orange-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              Deposit Revenue
+              Distribute Revenue
             </button>
           </div>
         </section>
@@ -298,6 +406,76 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      {/* Transaction Confirmation Modal */}
+      {showTransactionModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 max-w-md w-full">
+            <div className="text-center">
+              {transactionStatus === 'pending' && (
+                <>
+                  <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2">Transaction Pending</h3>
+                  <p className="text-gray-300">Please confirm the transaction in your wallet...</p>
+                </>
+              )}
+              
+              {transactionStatus === 'confirming' && (
+                <>
+                  <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2">Confirming Transaction</h3>
+                  <p className="text-gray-300">Waiting for blockchain confirmation...</p>
+                  {transactionHash && (
+                    <p className="text-xs text-gray-400 mt-2 font-mono break-all">
+                      Hash: {transactionHash}
+                    </p>
+                  )}
+                </>
+              )}
+              
+              {transactionStatus === 'success' && (
+                <>
+                  <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2">Transaction Successful!</h3>
+                  <p className="text-gray-300">Your transaction has been confirmed on the blockchain.</p>
+                  {transactionHash && (
+                    <p className="text-xs text-gray-400 mt-2 font-mono break-all">
+                      Hash: {transactionHash}
+                    </p>
+                  )}
+                </>
+              )}
+              
+              {transactionStatus === 'error' && (
+                <>
+                  <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2">Transaction Failed</h3>
+                  <p className="text-gray-300">There was an error processing your transaction.</p>
+                </>
+              )}
+              
+              <button
+                onClick={() => setShowTransactionModal(false)}
+                className="mt-6 px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200"
+              >
+                {transactionStatus === 'success' ? 'Close' : 'Cancel'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -5,7 +5,20 @@ import { useAuth } from '@/contexts/AuthContext';
 const API_BASE_URL = 'http://localhost:8000/api';
 
 export const useApi = () => {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+
+  // Store created projects in localStorage for persistence
+  const getStoredProjects = () => {
+    if (typeof window === 'undefined') return [];
+    const stored = localStorage.getItem('flowmint_projects');
+    return stored ? JSON.parse(stored) : [];
+  };
+
+  const storeProjects = (projects) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('flowmint_projects', JSON.stringify(projects));
+    }
+  };
 
   const request = async (endpoint, options = {}) => {
     // For MVP, return mock data instead of making real API calls
@@ -14,11 +27,36 @@ export const useApi = () => {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 500));
     
+    // Handle POST requests for project creation
+    if (options.method === 'POST' && endpoint === '/projects') {
+      const newProject = {
+        id: Date.now(),
+        ...options.body ? JSON.parse(options.body) : {},
+        creator_id: user?.id || 1,
+        current_revenue: 0,
+        nft_token_id: Math.floor(Math.random() * 1000) + 1,
+        nft_contract_address: "0x1234567890123456789012345678901234567890",
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      // Store the new project
+      const existingProjects = getStoredProjects();
+      const updatedProjects = [...existingProjects, newProject];
+      storeProjects(updatedProjects);
+      
+      return newProject;
+    }
+    
     // Mock data based on endpoint
     if (endpoint.includes('/dashboard')) {
       const isCreator = endpoint.includes('/creator/');
+      const storedProjects = getStoredProjects();
+      const userProjects = storedProjects.filter(p => p.creator_id === user?.id);
+      
       return {
-        user: {
+        user: user || {
           id: 1,
           username: isCreator ? 'alice_creator' : 'charlie_investor',
           wallet_address: '0x1234567890123456789012345678901234567890',
@@ -31,7 +69,7 @@ export const useApi = () => {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         },
-        projects: isCreator ? [
+        projects: isCreator ? userProjects.length > 0 ? userProjects : [
           {
             id: 1,
             name: "Cyber Wolf NFT Collection",
@@ -77,7 +115,8 @@ export const useApi = () => {
         recent_revenue: []
       };
     } else if (endpoint === '/projects') {
-      return [
+      const storedProjects = getStoredProjects();
+      const defaultProjects = [
         {
           id: 1,
           name: "Cyber Wolf NFT Collection",
@@ -124,6 +163,8 @@ export const useApi = () => {
           creator_id: 1
         }
       ];
+      
+      return [...storedProjects, ...defaultProjects];
     }
     
     return {};
