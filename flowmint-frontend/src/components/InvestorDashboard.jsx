@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import InvestmentCard from './InvestmentCard';
 import ProjectCard from './ProjectCard';
 import StatsCard from './StatsCard';
+import PortfolioChart from './PortfolioChart';
 
 const InvestorDashboard = ({ data, onRefresh }) => {
   const [activeTab, setActiveTab] = useState('investments');
@@ -70,6 +71,18 @@ const InvestorDashboard = ({ data, onRefresh }) => {
           change="+1"
         />
       </div>
+
+      {/* Portfolio Chart */}
+      <PortfolioChart 
+        title="Investment Portfolio Distribution"
+        data={[
+          { category: 'Art', amount: 15000, color: '#8B5CF6' },
+          { category: 'Music', amount: 12000, color: '#EC4899' },
+          { category: 'Gaming', amount: 8000, color: '#10B981' },
+          { category: 'Education', amount: 5000, color: '#F59E0B' },
+          { category: 'Other', amount: 3000, color: '#6B7280' }
+        ]}
+      />
 
       {/* Tab Navigation */}
       <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">

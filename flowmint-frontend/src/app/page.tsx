@@ -15,6 +15,11 @@ import { parseUnits, formatUnits, getContract } from 'viem';
 import distributorArtifact from '@/lib/abi/RevenueDistributor.json';
 import nftArtifact from '@/lib/abi/FlowMintNFT.json';
 
+// --- New Components ---
+import FeaturedProjects from '@/components/FeaturedProjects';
+import HowItWorks from '@/components/HowItWorks';
+import Testimonials from '@/components/Testimonials';
+
 // Minimal ERC20 ABI (approve/allowance/balance)
 const erc20Abi = [
   { type: 'function', name: 'approve', stateMutability: 'nonpayable', inputs: [{ name: 'spender', type: 'address' }, { name: 'amount', type: 'uint256' }], outputs: [{ type: 'bool', name: '' }] },
@@ -245,21 +250,23 @@ export default function Home() {
   const claimableUSDC = claimableRaw ? `${formatUnits(claimableRaw, 6)} USDC` : null;
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-8 bg-gray-900 text-white font-sans">
-      {/* Back Button */}
-      <div className="w-full max-w-2xl mb-4">
-        <button
-          onClick={() => window.location.href = '/login'}
-          className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-200"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          <span>Back to Login</span>
-        </button>
-      </div>
-      
-      <div className="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-2xl shadow-purple-500/10 p-6 sm:p-8 space-y-8 border border-gray-700">
+    <main className="min-h-screen bg-gray-900 text-white font-sans">
+      {/* Hero Section */}
+      <section className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-8">
+        {/* Back Button */}
+        <div className="w-full max-w-2xl mb-4">
+          <button
+            onClick={() => window.location.href = '/login'}
+            className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-200"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span>Back to Login</span>
+          </button>
+        </div>
+        
+        <div className="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-2xl shadow-purple-500/10 p-6 sm:p-8 space-y-8 border border-gray-700">
         <div className="text-center">
           <h1 className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
             FlowMint
@@ -427,6 +434,16 @@ export default function Home() {
           )}
         </div>
       </div>
+      </section>
+
+      {/* Featured Projects Section */}
+      <FeaturedProjects />
+
+      {/* How It Works Section */}
+      <HowItWorks />
+
+      {/* Testimonials Section */}
+      <Testimonials />
 
       {/* Transaction Confirmation Modal */}
       {showTransactionModal && (

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import ProjectCard from './ProjectCard';
 import CreateProjectModal from './CreateProjectModal';
 import StatsCard from './StatsCard';
+import RevenueChart from './RevenueChart';
 
 const CreatorDashboard = ({ data, onRefresh }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -97,6 +98,20 @@ const CreatorDashboard = ({ data, onRefresh }) => {
           change="+5"
         />
       </div>
+
+      {/* Revenue Chart */}
+      <RevenueChart 
+        title="Revenue Over Time" 
+        type="line"
+        data={[
+          { month: 'Jan', revenue: 2500 },
+          { month: 'Feb', revenue: 3200 },
+          { month: 'Mar', revenue: 2800 },
+          { month: 'Apr', revenue: 4100 },
+          { month: 'May', revenue: 3800 },
+          { month: 'Jun', revenue: 5200 }
+        ]}
+      />
 
       {/* Projects Section */}
       <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
