@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+
+# build output
+.next/
+dist/
+artifacts/
+cache/
+
+# env / secrets
+.env
+.env.local
+
+# editor stuff
+.DS_Store
+*.log
