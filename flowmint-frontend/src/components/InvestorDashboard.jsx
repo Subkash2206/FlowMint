@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import InvestmentCard from './InvestmentCard';
 import ProjectCard from './ProjectCard';
 import StatsCard from './StatsCard';
 
 const InvestorDashboard = ({ data, onRefresh }) => {
   const [activeTab, setActiveTab] = useState('investments');
+  const router = useRouter();
 
   if (!data) {
     return (
@@ -32,7 +34,10 @@ const InvestorDashboard = ({ data, onRefresh }) => {
               Track your investments and discover new opportunities
             </p>
           </div>
-          <button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center space-x-2">
+          <button 
+            onClick={() => router.push('/home')}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center space-x-2"
+          >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -134,20 +139,32 @@ const InvestorDashboard = ({ data, onRefresh }) => {
         {/* Discover Tab */}
         {activeTab === 'discover' && (
           <div>
-            <h3 className="text-2xl font-bold text-white mb-6">Discover Projects</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* This would be populated with projects from the API */}
-              <div className="bg-white/5 rounded-lg p-6 border border-white/10">
-                <div className="w-full h-32 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg mb-4"></div>
-                <h4 className="text-lg font-semibold text-white mb-2">Sample Project</h4>
-                <p className="text-gray-300 text-sm mb-4">This is a sample project for demonstration</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-green-400 font-semibold">$2,500 raised</span>
-                  <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200">
-                    Invest
-                  </button>
-                </div>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-white">Discover Projects</h3>
+              <button 
+                onClick={() => router.push('/home')}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center space-x-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                <span>View All Projects</span>
+              </button>
+            </div>
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </div>
+              <h4 className="text-lg font-semibold text-white mb-2">Explore All Projects</h4>
+              <p className="text-gray-300 mb-6">Discover and invest in amazing creator projects</p>
+              <button 
+                onClick={() => router.push('/home')}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+              >
+                Browse All Projects
+              </button>
             </div>
           </div>
         )}

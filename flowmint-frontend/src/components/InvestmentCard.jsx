@@ -11,18 +11,22 @@ const InvestmentCard = ({ investment }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
           </svg>
         </div>
-        <span className="text-green-400 text-sm font-semibold bg-green-500/20 px-2 py-1 rounded-full">
-          Active
+        <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
+          investment.status === 'active' 
+            ? 'text-green-400 bg-green-500/20' 
+            : 'text-gray-400 bg-gray-500/20'
+        }`}>
+          {investment.status || 'Active'}
         </span>
       </div>
 
       <div className="space-y-3">
         <div>
           <h3 className="text-lg font-bold text-white mb-1">
-            Investment #{investment.nft_token_id}
+            {investment.project_name || `Investment #${investment.nft_token_id}`}
           </h3>
           <p className="text-gray-300 text-sm">
-            Project ID: {investment.project_id}
+            by {investment.project_creator || 'Unknown Creator'}
           </p>
         </div>
 

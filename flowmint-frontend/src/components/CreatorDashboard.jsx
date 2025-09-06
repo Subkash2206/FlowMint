@@ -8,6 +8,35 @@ import StatsCard from './StatsCard';
 const CreatorDashboard = ({ data, onRefresh }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
 
+  const handleDeleteProject = (projectId) => {
+    try {
+      // Get projects from localStorage using the correct key
+      const storedProjects = JSON.parse(localStorage.getItem('flowmint_projects') || '[]');
+      
+      // Find the project to get its name for confirmation
+      const projectToDelete = storedProjects.find(project => project.id === projectId);
+      
+      if (!projectToDelete) {
+        alert('Project not found!');
+        return;
+      }
+      
+      // Filter out the deleted project
+      const updatedProjects = storedProjects.filter(project => project.id !== projectId);
+      
+      // Update localStorage
+      localStorage.setItem('flowmint_projects', JSON.stringify(updatedProjects));
+      
+      // Refresh the dashboard
+      onRefresh();
+      
+      alert(`Project "${projectToDelete.name}" deleted successfully!`);
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      alert('Failed to delete project. Please try again.');
+    }
+  };
+
   if (!data) {
     return (
       <div className="text-center py-12">
@@ -89,7 +118,12 @@ const CreatorDashboard = ({ data, onRefresh }) => {
         {projects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-              <ProjectCard key={project.id} project={project} isOwner={true} />
+              <ProjectCard 
+                key={project.id} 
+                project={project} 
+                isOwner={true} 
+                onDelete={handleDeleteProject}
+              />
             ))}
           </div>
         ) : (

@@ -8,6 +8,7 @@ import CreatorDashboard from '@/components/CreatorDashboard';
 import InvestorDashboard from '@/components/InvestorDashboard';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import BlockchainActions from '@/components/BlockchainActions';
+import ProfileDropdown from '@/components/ProfileDropdown';
 
 const Dashboard = () => {
   const { user, isAuthenticated, loading, logout } = useAuth();
@@ -55,7 +56,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
       {/* Header */}
-      <header className="bg-white/10 backdrop-blur-lg border-b border-white/20">
+      <header className="bg-white/10 backdrop-blur-lg border-b border-white/20 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
@@ -79,31 +80,14 @@ const Dashboard = () => {
                 </svg>
                 <span>Discover Projects</span>
               </a>
-              <div className="text-right">
-                <p className="text-sm text-gray-300">Welcome back,</p>
-                <p className="font-semibold text-white">{user.username || user.wallet_address.slice(0, 6)}...</p>
-              </div>
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-semibold text-sm">
-                  {(user.username || user.wallet_address).charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <button
-                onClick={() => {
-                  logout();
-                  router.push('/login');
-                }}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200"
-              >
-                Logout
-              </button>
+              <ProfileDropdown user={user} />
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-0">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Dashboard Content */}
           <div className="lg:col-span-2">

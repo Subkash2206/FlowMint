@@ -124,6 +124,25 @@ const CreateProjectModal = ({ onClose, onSuccess }) => {
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               placeholder="https://example.com/image.jpg"
             />
+            {formData.image_url && (
+              <div className="mt-3">
+                <p className="text-sm text-gray-400 mb-2">Preview:</p>
+                <div className="w-full h-32 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg overflow-hidden">
+                  <img 
+                    src={formData.image_url} 
+                    alt="Project preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div className="w-full h-full flex items-center justify-center hidden">
+                    <span className="text-white text-2xl">🎨</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex space-x-4 pt-4">

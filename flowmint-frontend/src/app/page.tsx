@@ -50,13 +50,8 @@ export default function Home() {
   );
 
   // --- READS ---
-  // Pull USDC address from contract (since it's immutable public)
-  const { data: usdcAddressData } = useReadContract({
-    address: revenueDistributorAddress,
-    abi: distributorAbi,
-    functionName: 'usdcToken',
-  });
-  const usdcAddress = usdcAddressData;
+  // Use a mock USDC address for demo purposes
+  const usdcAddress = '0xA0b86a33E6441b8c4C8C0C4C0C4C0C4C0C4C0C4C'; // Mock USDC address
 
   // Distributor totals
   const { data: totalSupplyData, refetch: refetchSupply } = useReadContract({
@@ -81,14 +76,8 @@ export default function Home() {
     query: { enabled: !!tokenIdToClaim },
   });
 
-  // USDC allowance check
-  const { data: allowanceData } = useReadContract({
-    address: usdcAddress,
-    abi: erc20Abi,
-    functionName: 'allowance',
-    args: [address, revenueDistributorAddress],
-    query: { enabled: !!usdcAddress && !!address },
-  });
+  // Mock allowance data for demo
+  const allowanceData = BigInt(0); // Mock: no allowance initially
 
   // --- ACTIONS ---
   // Mint is "free for demo" per your Solidity (USDC transfer commented out)
@@ -257,25 +246,57 @@ export default function Home() {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-8 bg-gray-900 text-white font-sans">
+      {/* Back Button */}
+      <div className="w-full max-w-2xl mb-4">
+        <button
+          onClick={() => window.location.href = '/login'}
+          className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-200"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span>Back to Login</span>
+        </button>
+      </div>
+      
       <div className="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-2xl shadow-purple-500/10 p-6 sm:p-8 space-y-8 border border-gray-700">
         <div className="text-center">
           <h1 className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
             FlowMint
           </h1>
           <p className="text-gray-400 mt-2">Tokenize Your Future Revenue</p>
-          <div className="mt-4 space-x-4">
-            <a
-              href="/login"
-              className="inline-block px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200"
-            >
-              Login / Register
-            </a>
-            <a
-              href="/home"
-              className="inline-block px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200"
-            >
-              Browse Projects
-            </a>
+          <div className="mt-6 space-y-4">
+            <div className="flex space-x-4">
+              <a
+                href="/login"
+                className="inline-block px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg font-semibold"
+              >
+                Get Started
+              </a>
+              <a
+                href="/home"
+                className="inline-block px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg font-semibold border border-white/20"
+              >
+                Browse Projects
+              </a>
+            </div>
+            <div className="text-center">
+              <p className="text-gray-400 text-sm mb-3">Choose your role:</p>
+              <div className="flex justify-center space-x-4">
+                <a
+                  href="/login?role=creator"
+                  className="inline-block px-4 py-2 bg-green-600/20 hover:bg-green-600/30 text-green-300 rounded-lg transition-all duration-200 text-sm font-medium border border-green-500/30"
+                >
+                  Creator
+                </a>
+                <a
+                  href="/login?role=investor"
+                  className="inline-block px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 rounded-lg transition-all duration-200 text-sm font-medium border border-blue-500/30"
+                >
+                  Investor
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -324,16 +345,16 @@ export default function Home() {
         {/* CREATOR */}
         <section className="space-y-4 bg-gray-900/50 p-6 rounded-lg border border-gray-700">
           <h2 className="text-xl sm:text-2xl font-semibold border-b border-gray-600 pb-2 text-gray-200">
-            For Creators (Token Conversion)
+            For Creators (Revenue Distribution)
           </h2>
           <div className="text-sm text-gray-400 mb-4">
-            Convert your FlowMint tokens to real revenue and distribute to investors
+            Fans pay you real money for NFTs/tokens → You distribute that revenue to investors
           </div>
           <input
             type="number"
             value={revenueAmount}
             onChange={(e) => setRevenueAmount(e.target.value)}
-            placeholder="Enter revenue amount to convert (e.g., 25.5)"
+            placeholder="Enter revenue received from fans (e.g., 25.5)"
             className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none transition-all"
           />
           <div className="grid grid-cols-2 gap-3">
@@ -342,14 +363,14 @@ export default function Home() {
               disabled={!isConnected || isPending || !revenueAmount}
               className="w-full px-4 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              Convert Tokens
+              Approve Revenue
             </button>
             <button
               onClick={handleDepositRevenue}
               disabled={!isConnected || isPending || !revenueAmount}
               className="w-full px-4 py-2 bg-orange-600 rounded-lg hover:bg-orange-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              Distribute Revenue
+              Distribute to Investors
             </button>
           </div>
         </section>
@@ -430,9 +451,12 @@ export default function Home() {
                   <h3 className="text-xl font-semibold text-white mb-2">Confirming Transaction</h3>
                   <p className="text-gray-300">Waiting for blockchain confirmation...</p>
                   {transactionHash && (
-                    <p className="text-xs text-gray-400 mt-2 font-mono break-all">
-                      Hash: {transactionHash}
-                    </p>
+                    <div className="mt-4 p-3 bg-gray-800/50 rounded-lg">
+                      <p className="text-xs text-gray-400 mb-1">Transaction Hash:</p>
+                      <p className="text-xs text-gray-300 font-mono break-all">
+                        {transactionHash}
+                      </p>
+                    </div>
                   )}
                 </>
               )}
@@ -447,9 +471,12 @@ export default function Home() {
                   <h3 className="text-xl font-semibold text-white mb-2">Transaction Successful!</h3>
                   <p className="text-gray-300">Your transaction has been confirmed on the blockchain.</p>
                   {transactionHash && (
-                    <p className="text-xs text-gray-400 mt-2 font-mono break-all">
-                      Hash: {transactionHash}
-                    </p>
+                    <div className="mt-4 p-3 bg-gray-800/50 rounded-lg">
+                      <p className="text-xs text-gray-400 mb-1">Transaction Hash:</p>
+                      <p className="text-xs text-gray-300 font-mono break-all">
+                        {transactionHash}
+                      </p>
+                    </div>
                   )}
                 </>
               )}
@@ -466,16 +493,45 @@ export default function Home() {
                 </>
               )}
               
-              <button
-                onClick={() => setShowTransactionModal(false)}
-                className="mt-6 px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200"
-              >
-                {transactionStatus === 'success' ? 'Close' : 'Cancel'}
-              </button>
+              <div className="mt-6 flex space-x-3">
+                <button
+                  onClick={() => setShowTransactionModal(false)}
+                  className="flex-1 px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200"
+                >
+                  {transactionStatus === 'success' ? 'Close' : 'Cancel'}
+                </button>
+                {transactionStatus === 'success' && (
+                  <button
+                    onClick={() => {
+                      setShowTransactionModal(false);
+                      // Refresh the page to show updated data
+                      window.location.reload();
+                    }}
+                    className="flex-1 px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
+                  >
+                    Refresh
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* Footer */}
+      <footer className="w-full max-w-2xl mt-8 text-center">
+        <div className="text-gray-400 text-sm space-y-2">
+          <p>Built on Polygon Amoy Testnet</p>
+          <div className="flex justify-center space-x-6">
+            <a href="#" className="hover:text-white transition-colors duration-200">About</a>
+            <a href="#" className="hover:text-white transition-colors duration-200">Docs</a>
+            <a href="#" className="hover:text-white transition-colors duration-200">Support</a>
+          </div>
+          <p className="text-xs text-gray-500 mt-4">
+            © 2024 FlowMint. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </main>
   );
 }

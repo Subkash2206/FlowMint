@@ -35,12 +35,8 @@ const BlockchainActions = ({ userRole }) => {
   );
 
   // Pull USDC address from contract
-  const { data: usdcAddressData } = useReadContract({
-    address: revenueDistributorAddress,
-    abi: distributorAbi,
-    functionName: 'usdcToken',
-  });
-  const usdcAddress = usdcAddressData;
+  // Use a mock USDC address for demo purposes
+  const usdcAddress = '0xA0b86a33E6441b8c4C8C0C4C0C4C0C4C0C4C0C4C'; // Mock USDC address
 
   // Distributor totals
   const { data: totalSupplyData, refetch: refetchSupply } = useReadContract({
@@ -65,14 +61,8 @@ const BlockchainActions = ({ userRole }) => {
     query: { enabled: !!tokenIdToClaim },
   });
 
-  // USDC allowance check
-  const { data: allowanceData } = useReadContract({
-    address: usdcAddress,
-    abi: erc20Abi,
-    functionName: 'allowance',
-    args: [address, revenueDistributorAddress],
-    query: { enabled: !!usdcAddress && !!address },
-  });
+  // Mock allowance data for demo
+  const allowanceData = BigInt(0); // Mock: no allowance initially
 
   // Actions
   const handleMint = () => {
@@ -193,8 +183,11 @@ const BlockchainActions = ({ userRole }) => {
             <svg className="w-6 h-6 text-orange-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
             </svg>
-            Deposit Revenue (USDC)
+            Distribute Revenue to Investors
           </h3>
+          <div className="text-sm text-gray-400 mb-4">
+            Fans pay you real money for NFTs/tokens → You distribute that revenue to investors
+          </div>
           {!hasDepositRevenue && (
             <div className="p-3 rounded bg-red-900/30 border border-red-700 text-sm mb-4">
               ABI missing <code>depositRevenue</code> function
@@ -207,7 +200,7 @@ const BlockchainActions = ({ userRole }) => {
             type="number"
             value={revenueAmount}
             onChange={(e) => setRevenueAmount(e.target.value)}
-            placeholder="Enter revenue amount in USDC (e.g., 25.5)"
+            placeholder="Enter revenue received from fans (e.g., 25.5)"
             className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none transition-all mb-4"
           />
           <div className="grid grid-cols-2 gap-3">
@@ -216,14 +209,14 @@ const BlockchainActions = ({ userRole }) => {
               disabled={isPending || !revenueAmount}
               className="px-4 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              Approve USDC
+              Approve Revenue
             </button>
             <button
               onClick={handleDepositRevenue}
               disabled={isPending || !revenueAmount || !hasDepositRevenue}
               className="px-4 py-2 bg-orange-600 rounded-lg hover:bg-orange-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              Deposit Revenue
+              Distribute to Investors
             </button>
           </div>
         </div>

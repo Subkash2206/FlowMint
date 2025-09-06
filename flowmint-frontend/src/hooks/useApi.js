@@ -29,11 +29,13 @@ export const useApi = () => {
     
     // Handle POST requests for project creation
     if (options.method === 'POST' && endpoint === '/projects') {
+      const projectData = options.body ? JSON.parse(options.body) : {};
       const newProject = {
         id: Date.now(),
-        ...options.body ? JSON.parse(options.body) : {},
+        ...projectData,
         creator_id: user?.id || 1,
         current_revenue: 0,
+        investor_count: 0,
         nft_token_id: Math.floor(Math.random() * 1000) + 1,
         nft_contract_address: "0x1234567890123456789012345678901234567890",
         is_active: true,
@@ -86,20 +88,30 @@ export const useApi = () => {
             creator_id: 1
           }
         ] : [],
-        investments: isCreator ? [] : [
-          {
-            id: 1,
-            amount: 500,
-            nft_token_id: 1,
-            transaction_hash: "0xabc123",
-            investor_id: 1,
-            project_id: 1,
-            created_at: new Date().toISOString()
-          }
-        ],
+        investments: isCreator ? [] : (() => {
+          const userInvestments = JSON.parse(localStorage.getItem('userInvestments') || '[]');
+          return userInvestments.map(inv => ({
+            id: inv.id,
+            amount: inv.amount,
+            nft_token_id: inv.nft_token_id,
+            transaction_hash: `0x${Math.random().toString(16).substr(2, 8)}`,
+            investor_id: user?.id || 1,
+            project_id: inv.project_id,
+            project_name: inv.project_name,
+            project_creator: inv.project_creator,
+            created_at: inv.created_at,
+            status: inv.status
+          }));
+        })(),
         total_revenue: isCreator ? 2500 : 0,
-        total_investors: isCreator ? 2 : 0,
-        total_invested: isCreator ? 0 : 1500,
+        total_investors: isCreator ? (() => {
+          const projects = isCreator ? userProjects : [];
+          return projects.reduce((sum, p) => sum + (p.investor_count || 0), 0);
+        })() : 0,
+        total_invested: isCreator ? 0 : (() => {
+          const userInvestments = JSON.parse(localStorage.getItem('userInvestments') || '[]');
+          return userInvestments.reduce((sum, inv) => sum + inv.amount, 0);
+        })(),
         total_projects: isCreator ? 1 : 0,
         recent_investments: isCreator ? [
           {

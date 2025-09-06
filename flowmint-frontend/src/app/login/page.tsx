@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import { ethers } from "ethers";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAccount, useConnect } from 'wagmi';
+import { injected } from 'wagmi/connectors';
 
 const Login = () => {
-  const [wallet, setWallet] = useState("");
   const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState({
@@ -17,6 +17,10 @@ const Login = () => {
   const [step, setStep] = useState(1); // 1: connect, 2: role, 3: details, 4: success
   const router = useRouter();
   const { login, register, isAuthenticated } = useAuth();
+  
+  // Web3 hooks
+  const { address, isConnected, chainId } = useAccount();
+  const { connect, isPending: isConnecting } = useConnect();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -24,10 +28,31 @@ const Login = () => {
     }
   }, [isAuthenticated, router]);
 
+  useEffect(() => {
+    if (isConnected && address) {
+      setStep(2);
+    }
+  }, [isConnected, address]);
+
+  // Handle URL parameters for role selection
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const roleParam = urlParams.get('role');
+    if (roleParam && (roleParam === 'creator' || roleParam === 'investor')) {
+      setRole(roleParam);
+      if (isConnected && address) {
+        setStep(3); // Skip role selection if role is pre-selected
+      }
+    }
+  }, [isConnected, address]);
+
   const connectWallet = async () => {
-    // For MVP, just simulate wallet connection
-    setWallet("0x1234567890123456789012345678901234567890");
-    setStep(2);
+    try {
+      await connect({ connector: injected() });
+    } catch (error) {
+      console.error('Wallet connection failed:', error);
+      alert('Failed to connect wallet. Please make sure MetaMask is installed and unlocked.');
+    }
   };
 
   const selectRole = (selectedRole) => {
@@ -40,7 +65,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const result = await login(wallet, role, userData);
+      const result = await login(address, role, userData);
       
       if (result.success) {
         setStep(4);
@@ -66,6 +91,19 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
+      {/* Back Button */}
+      <div className="absolute top-4 left-4">
+        <button
+          onClick={() => window.location.href = '/'}
+          className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-200"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span>Back to Home</span>
+        </button>
+      </div>
+      
       <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl max-w-md w-full p-8 border border-white/20">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mb-2">
@@ -88,9 +126,10 @@ const Login = () => {
             </div>
             <button
               onClick={connectWallet}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+              disabled={isConnecting}
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-500 disabled:to-gray-600 text-white px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg disabled:cursor-not-allowed"
             >
-              Connect MetaMask
+              {isConnecting ? 'Connecting...' : 'Connect MetaMask'}
             </button>
           </div>
         )}
@@ -105,7 +144,7 @@ const Login = () => {
                 </svg>
               </div>
               <h2 className="text-xl font-semibold text-white mb-2">Choose Your Role</h2>
-              <p className="text-gray-300 mb-4">Connected: {wallet.slice(0, 6)}...{wallet.slice(-4)}</p>
+              <p className="text-gray-300 mb-4">Connected: {address?.slice(0, 6)}...{address?.slice(-4)}</p>
             </div>
             <div className="space-y-4">
               <button
