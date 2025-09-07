@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: flowmint-backend
+    env: python
+    autoDeploy: true
+    rootDir: flowmint-backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        # Set in Render dashboard (e.g., Render Postgres)
+        sync: false
+      - key: SECRET_KEY
+        # Generate a random secret on first deploy
+        generateValue: true
+      - key: CORS_ORIGINS
+        # Allow the frontend URL in CORS. This links to the frontend service URL.
+        fromService:
+          type: web
+          name: flowmint-frontend
+          property: url
+
+  - type: web
+    name: flowmint-frontend
+    env: node
+    autoDeploy: true
+    rootDir: flowmint-frontend
+    buildCommand: npm install --no-audit --no-fund && npm run build
+    startCommand: npm run start -- -p $PORT
+    envVars:
+      - key: NEXT_PUBLIC_API_BASE_URL
+        # Link to the backend URL for client-side calls. Your code may append /api.
+        fromService:
+          type: web
+          name: flowmint-backend
+          property: url
