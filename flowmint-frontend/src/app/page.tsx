@@ -257,18 +257,7 @@ export default function Home() {
     <main className="min-h-screen bg-gray-900 text-white font-sans">
       {/* Hero Section */}
       <section className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-8">
-        {/* Back Button */}
-        <div className="w-full max-w-2xl mb-4">
-          <button
-            onClick={() => window.location.href = '/login'}
-            className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-200"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span>Back to Login</span>
-          </button>
-        </div>
+        
         
         <div className="w-full max-w-4xl bg-gradient-to-br from-gray-800/90 via-purple-900/20 to-pink-900/20 rounded-3xl shadow-2xl shadow-purple-500/20 p-8 sm:p-12 space-y-12 border border-purple-500/30 backdrop-blur-xl">
         <div className="text-center relative">

@@ -36,7 +36,7 @@ const BlockchainActions = ({ userRole }) => {
 
   // Pull USDC address from contract
   // Use a mock USDC address for demo purposes
-  const usdcAddress = '0xA0b86a33E6441b8c4C8C0C4C0C4C0C4C0C4C0C4C'; // Mock USDC address
+  const usdcAddress = '0xA0b86a33E6441b8c4C'; // Mock USDC address
 
   // Distributor totals
   const { data: totalSupplyData, refetch: refetchSupply } = useReadContract({
