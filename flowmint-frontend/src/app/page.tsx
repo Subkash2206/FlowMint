@@ -258,8 +258,51 @@ export default function Home() {
       {/* Hero Section */}
       <section className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-8">
         
-        
-        <div className="w-full max-w-4xl bg-gradient-to-br from-gray-800/90 via-purple-900/20 to-pink-900/20 rounded-3xl shadow-2xl shadow-purple-500/20 p-8 sm:p-12 space-y-12 border border-purple-500/30 backdrop-blur-xl">
+        {/* Standalone, stretched hero before the card */}
+        <div className="w-full max-w-7xl mx-auto text-center px-4">
+          {/* FlowMint Logo (place /public/flowmint-logo.png) */}
+          <div className="flex justify-center mb-8">
+            <img
+              src="https://i.postimg.cc/VrRYGJYK/Screenshot-2025-09-07-153801.png"
+              alt="FlowMint Logo"
+              referrerPolicy="no-referrer"
+              loading="eager"
+              decoding="async"
+              className="h-24 sm:h-28 lg:h-36 rounded-md object-contain drop-shadow-[0_10px_25px_rgba(168,85,247,0.35)]"
+            />
+          </div>
+          <div className="relative inline-block">
+            <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-violet-400 mb-4 tracking-tight">
+              FlowMint
+            </h1>
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-40 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+          </div>
+          <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-400 mt-6">
+            Tokenize Your Future Revenue
+          </p>
+          <p className="text-lg sm:text-xl lg:text-2xl text-gray-300 mt-6 max-w-5xl mx-auto leading-relaxed">
+            The <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Revolutionary Platform</span> where creators raise capital by selling shares of their future earnings and investors get
+            <span className="font-semibold text-green-400"> direct access to revenue streams</span> through blockchain technology. FlowMint abstracts wallets and gas for a seamless on-ramp, while our audited smart contracts ensure
+            <span className="font-semibold text-blue-300"> predictable, automated payouts</span> and transparent performance for both sides.
+          </p>
+          {/* Stretched feature highlights */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 max-w-6xl mx-auto mb-14">
+            <div className="bg-gradient-to-br from-green-500/10 to-emerald-600/10 rounded-xl p-4 border border-green-500/30 text-left">
+              <h3 className="text-base sm:text-lg font-semibold text-green-400 mb-1.5">Decentralized Revenue Sharing</h3>
+              <p className="text-xs sm:text-sm text-gray-300">Automated, transparent distribution of creator earnings to investors</p>
+            </div>
+            <div className="bg-gradient-to-br from-blue-500/10 to-cyan-600/10 rounded-xl p-4 border border-blue-500/30 text-left">
+              <h3 className="text-base sm:text-lg font-semibold text-blue-400 mb-1.5">Smart Contract Automation</h3>
+              <p className="text-xs sm:text-sm text-gray-300">Trustless execution of revenue distribution on-chain</p>
+            </div>
+            <div className="bg-gradient-to-br from-purple-500/10 to-violet-600/10 rounded-xl p-4 border border-purple-500/30 text-left">
+              <h3 className="text-base sm:text-lg font-semibold text-purple-400 mb-1.5">Transparent & Trustless</h3>
+              <p className="text-xs sm:text-sm text-gray-300">Immutable records with full on-chain transparency</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full max-w-4xl bg-gradient-to-br from-gray-800/90 via-purple-900/20 to-pink-900/20 rounded-3xl shadow-2xl shadow-purple-500/20 p-8 sm:p-12 space-y-12 border border-purple-500/30 backdrop-blur-xl mt-8">
         <div className="text-center relative">
           {/* Animated background elements */}
           <div className="absolute inset-0 -z-10">
@@ -268,63 +311,6 @@ export default function Home() {
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-violet-500/10 rounded-full blur-2xl animate-pulse delay-500"></div>
           </div>
           
-          <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-violet-400 mb-6 tracking-tight">
-            FlowMint
-          </h1>
-          <div className="relative">
-            <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-400 mb-8">
-              Tokenize Your Future Revenue
-            </p>
-            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-          </div>
-          
-          <p className="text-xl sm:text-2xl lg:text-3xl text-gray-200 mt-12 max-w-4xl mx-auto leading-relaxed font-light">
-            The <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Revolutionary Platform</span> Where Creators Tokenize Their Future Revenue
-          </p>
-          
-          <p className="text-lg sm:text-xl lg:text-2xl text-gray-300 mt-8 max-w-4xl mx-auto leading-relaxed">
-            FlowMint transforms how creators and investors connect by enabling <span className="font-semibold text-blue-400">revenue-sharing NFTs</span>. 
-            Creators can raise capital by selling shares of their future earnings, while investors 
-            get <span className="font-semibold text-green-400">direct access to creator revenue streams</span> through blockchain technology.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-            <div className="bg-gradient-to-br from-green-500/10 to-emerald-600/10 rounded-2xl p-6 border border-green-500/30 backdrop-blur-sm hover:scale-105 transition-all duration-300">
-              <div className="flex items-center justify-center mb-4">
-                <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              </div>
-              <h3 className="text-lg font-bold text-green-400 mb-2">Decentralized Revenue Sharing</h3>
-              <p className="text-sm text-gray-300">Automated, transparent distribution of creator earnings to investors</p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-blue-500/10 to-cyan-600/10 rounded-2xl p-6 border border-blue-500/30 backdrop-blur-sm hover:scale-105 transition-all duration-300">
-              <div className="flex items-center justify-center mb-4">
-                <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              </div>
-              <h3 className="text-lg font-bold text-blue-400 mb-2">Smart Contract Automation</h3>
-              <p className="text-sm text-gray-300">Trustless execution of revenue distribution through blockchain</p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-purple-500/10 to-violet-600/10 rounded-2xl p-6 border border-purple-500/30 backdrop-blur-sm hover:scale-105 transition-all duration-300">
-              <div className="flex items-center justify-center mb-4">
-                <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              </div>
-              <h3 className="text-lg font-bold text-purple-400 mb-2">Transparent & Trustless</h3>
-              <p className="text-sm text-gray-300">Complete transparency with immutable blockchain records</p>
-            </div>
-          </div>
           <div className="mt-16 space-y-8">
             <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
               <a
@@ -645,3 +631,4 @@ export default function Home() {
     </main>
   );
 }
+
