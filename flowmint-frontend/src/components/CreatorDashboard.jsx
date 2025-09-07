@@ -5,9 +5,13 @@ import ProjectCard from './ProjectCard';
 import CreateProjectModal from './CreateProjectModal';
 import StatsCard from './StatsCard';
 import RevenueChart from './RevenueChart';
+import PixelArtNFTGenerator from './PixelArtNFTGenerator';
+import NFTDetailsModal from './NFTDetailsModal';
 
 const CreatorDashboard = ({ data, onRefresh }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [generatedNFT, setGeneratedNFT] = useState(null);
+  const [showNFTModal, setShowNFTModal] = useState(false);
 
   const handleDeleteProject = (projectId) => {
     try {
@@ -98,6 +102,21 @@ const CreatorDashboard = ({ data, onRefresh }) => {
           change="+5"
         />
       </div>
+
+      {/* Pixel Art NFT Generator */}
+      <PixelArtNFTGenerator 
+        onNFTCreated={(nftData) => {
+          console.log('NFT Created for project:', nftData);
+          setGeneratedNFT(nftData);
+          setShowNFTModal(true);
+        }}
+        onMintNFT={(nftData) => {
+          console.log('Minting NFT for project:', nftData);
+          setGeneratedNFT({ ...nftData, minting: true });
+          // Integrate with project minting
+        }}
+        className="mb-8"
+      />
 
       {/* Revenue Chart */}
       <RevenueChart 
@@ -200,6 +219,17 @@ const CreatorDashboard = ({ data, onRefresh }) => {
           }}
         />
       )}
+
+      {/* NFT Details Modal */}
+      <NFTDetailsModal
+        nft={generatedNFT}
+        isOpen={showNFTModal}
+        onClose={() => setShowNFTModal(false)}
+        onMint={(nftData) => {
+          setGeneratedNFT({ ...nftData, minting: true });
+          // Integrate with project minting
+        }}
+      />
     </div>
   );
 };
