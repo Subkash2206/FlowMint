@@ -6,11 +6,13 @@ from typing import List
 import secrets
 from datetime import datetime, timedelta
 import jwt
+import os
 
 router = APIRouter()
 
 # JWT Secret (in production, use environment variable)
-SECRET_KEY = "your-secret-key-change-in-production"
+
+SECRET_KEY = os.environ.get("SECRET_KEY", "a-default-secret-for-dev")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

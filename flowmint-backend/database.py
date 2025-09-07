@@ -3,9 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
 import os
-
-# Database setup
-DATABASE_URL = "sqlite:///./flowmint.db"
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./flowmint.db")
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
