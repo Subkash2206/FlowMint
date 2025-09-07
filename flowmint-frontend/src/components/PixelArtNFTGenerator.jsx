@@ -249,6 +249,18 @@ const PixelArtNFTGenerator = ({ onNFTCreated, onMintNFT, className = "" }) => {
 
   const handleMintNFT = () => {
     if (generatedNFT && onMintNFT) {
+      // Save to localStorage for marketplace
+      const mintedNFTs = JSON.parse(localStorage.getItem('flowmint_minted_nfts') || '[]');
+      const nftToSave = {
+        ...generatedNFT,
+        id: Date.now(),
+        mintDate: new Date().toISOString(),
+        creator: 'Current User', // In real app, this would be the connected wallet address
+        status: 'available'
+      };
+      mintedNFTs.push(nftToSave);
+      localStorage.setItem('flowmint_minted_nfts', JSON.stringify(mintedNFTs));
+      
       onMintNFT(generatedNFT);
     }
   };
