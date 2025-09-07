@@ -13,6 +13,9 @@ services:
       - key: SECRET_KEY
         # Generate a random secret on first deploy
         generateValue: true
+      - key: MONGODB_URI
+        # Optional: paste your MongoDB connection string in Render dashboard
+        sync: false
       - key: CORS_ORIGINS
         # Allow the frontend URL in CORS. This links to the frontend service URL.
         fromService:
