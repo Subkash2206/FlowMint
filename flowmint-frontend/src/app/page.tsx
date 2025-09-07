@@ -614,50 +614,44 @@ export default function Home() {
         </div>
       )}
 
-      {/* Footer */}
-      <footer className="w-full bg-black text-gray-300 mt-8 py-10 px-6">
-    <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-    {/* Logo & Short Info */}
-    <div className="flex flex-col items-center md:items-start space-y-4">
-      <p className="text-sm leading-relaxed">
-        <strong>FlowMint</strong> is an innovative DeFi platform empowering creators 
-        to fund their work by selling royalty-sharing NFTs. Each NFT is a unique 
-        AI-generated piece of art co-created with fans, giving investors a verifiable 
-        stake in the creator’s future success.
-      </p>
-    </div>
+{/* Footer - Outside main container for proper centering */}
+<footer className="w-full bg-gray-900/80 backdrop-blur-sm py-10">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-gray-300 md:[grid-template-columns:1.2fr_1fr_1.3fr]">
+            <div>
+              <h4 className="text-white font-semibold mb-2">About FlowMint</h4>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                Tokenize future revenue with on-chain revenue-sharing NFTs.
+                Automated, transparent distributions for investors via smart contracts.
+              </p>
+              <p className="mt-3 text-xs text-gray-500">Polygon Amoy Testnet</p>
+            </div>
 
-    {/* Project Description */}
-    <div className="space-y-3">
-      <h3 className="text-lg font-semibold text-white">About FlowMint</h3>
-      <p className="text-sm leading-relaxed">
-        FlowMint provides creators with a decentralized and engaging way to raise 
-        capital and share their success. With smart contracts for NFT minting and 
-        automated royalty distribution, investors gain ongoing rewards while supporting 
-        creators directly.
-      </p>
-      <nav className="flex space-x-6 mt-4">
-        <a href="#" className="hover:text-white transition-colors duration-200">About</a>
-        <a href="#" className="hover:text-white transition-colors duration-200">Docs</a>
-        <a href="#" className="hover:text-white transition-colors duration-200">Support</a>
-      </nav>
-    </div>
+            <div className="md:justify-self-center">
+              <h4 className="text-white font-semibold mb-2">Contact</h4>
+              <ul className="space-y-1.5 text-sm">
+                <li><a href="mailto:support@flowmint.app" className="hover:text-white transition-colors">support@flowmint.app</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Community</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Status</a></li>
+              </ul>
+            </div>
 
-    {/* Support / Contact Info */}
-    <div className="space-y-3">
-      <h3 className="text-lg font-semibold text-white">Support</h3>
-      <p className="text-sm">Email: <a href="mailto:support@flowmint.ai" className="hover:text-white">support@flowmint.ai</a></p>
-      <p className="text-sm">Phone: <a href="tel:+1234567890" className="hover:text-white">+1 (234) 567-890</a></p>
-      <p className="text-sm">Kempegowda International Airport, Bangalore, India</p>
-    </div>
-  </div>
+            <div className="md:col-start-3 md:pl-20 lg:pl-28">
+              <h4 className="text-white font-semibold mb-2">Quick Links</h4>
+              <ul className="space-y-1.5 text-sm">
+                <li><a href="/home" className="hover:text-white transition-colors">Browse Projects</a></li>
+                <li><a href="/login?role=creator" className="hover:text-white transition-colors">For Creators</a></li>
+                <li><a href="/login?role=investor" className="hover:text-white transition-colors">For Investors</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Docs</a></li>
+              </ul>
+            </div>
+          </div>
 
-  {/* Bottom Footer */}
-  <div className="border-t border-gray-700 mt-8 pt-4 text-center text-xs text-gray-500">
-    <p>Built on Polygon Amoy Testnet</p>
-    <p className="mt-2">© 2025 FlowMint. All rights reserved.</p>
-  </div>
-</footer>
+          <div className="border-t border-white/10 pt-4 mt-6 text-center">
+            <p className="text-xs text-gray-500">© 2025 FlowMint</p>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
