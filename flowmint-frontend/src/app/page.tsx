@@ -615,19 +615,49 @@ export default function Home() {
       )}
 
       {/* Footer */}
-      <footer className="w-full max-w-2xl mt-8 text-center">
-        <div className="text-gray-400 text-sm space-y-2">
-          <p>Built on Polygon Amoy Testnet</p>
-          <div className="flex justify-center space-x-6">
-            <a href="#" className="hover:text-white transition-colors duration-200">About</a>
-            <a href="#" className="hover:text-white transition-colors duration-200">Docs</a>
-            <a href="#" className="hover:text-white transition-colors duration-200">Support</a>
-          </div>
-          <p className="text-xs text-gray-500 mt-4">
-            © 2024 FlowMint. All rights reserved.
-          </p>
-        </div>
-      </footer>
+      <footer className="w-full bg-black text-gray-300 mt-8 py-10 px-6">
+    <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+    {/* Logo & Short Info */}
+    <div className="flex flex-col items-center md:items-start space-y-4">
+      <p className="text-sm leading-relaxed">
+        <strong>FlowMint</strong> is an innovative DeFi platform empowering creators 
+        to fund their work by selling royalty-sharing NFTs. Each NFT is a unique 
+        AI-generated piece of art co-created with fans, giving investors a verifiable 
+        stake in the creator’s future success.
+      </p>
+    </div>
+
+    {/* Project Description */}
+    <div className="space-y-3">
+      <h3 className="text-lg font-semibold text-white">About FlowMint</h3>
+      <p className="text-sm leading-relaxed">
+        FlowMint provides creators with a decentralized and engaging way to raise 
+        capital and share their success. With smart contracts for NFT minting and 
+        automated royalty distribution, investors gain ongoing rewards while supporting 
+        creators directly.
+      </p>
+      <nav className="flex space-x-6 mt-4">
+        <a href="#" className="hover:text-white transition-colors duration-200">About</a>
+        <a href="#" className="hover:text-white transition-colors duration-200">Docs</a>
+        <a href="#" className="hover:text-white transition-colors duration-200">Support</a>
+      </nav>
+    </div>
+
+    {/* Support / Contact Info */}
+    <div className="space-y-3">
+      <h3 className="text-lg font-semibold text-white">Support</h3>
+      <p className="text-sm">Email: <a href="mailto:support@flowmint.ai" className="hover:text-white">support@flowmint.ai</a></p>
+      <p className="text-sm">Phone: <a href="tel:+1234567890" className="hover:text-white">+1 (234) 567-890</a></p>
+      <p className="text-sm">Kempegowda International Airport, Bangalore, India</p>
+    </div>
+  </div>
+
+  {/* Bottom Footer */}
+  <div className="border-t border-gray-700 mt-8 pt-4 text-center text-xs text-gray-500">
+    <p>Built on Polygon Amoy Testnet</p>
+    <p className="mt-2">© 2025 FlowMint. All rights reserved.</p>
+  </div>
+</footer>
     </main>
   );
 }
