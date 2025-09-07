@@ -256,7 +256,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-900 text-white font-sans">
       {/* Hero Section */}
-      <section id="home" className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-8">
+      <section className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-8">
         
         {/* Standalone, stretched hero before the card */}
         <div className="w-full max-w-7xl mx-auto text-center px-4">
@@ -286,7 +286,7 @@ export default function Home() {
             <span className="font-semibold text-blue-300"> predictable, automated payouts</span> and transparent performance for both sides.
           </p>
           {/* Stretched feature highlights */}
-          <div id="features" className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 max-w-6xl mx-auto mb-14">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 max-w-6xl mx-auto mb-14">
             <div className="bg-gradient-to-br from-green-500/10 to-emerald-600/10 rounded-xl p-4 border border-green-500/30 text-left">
               <h3 className="text-base sm:text-lg font-semibold text-green-400 mb-1.5">Decentralized Revenue Sharing</h3>
               <p className="text-xs sm:text-sm text-gray-300">Automated, transparent distribution of creator earnings to investors</p>
