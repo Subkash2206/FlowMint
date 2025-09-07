@@ -1,12 +1,27 @@
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean, Text, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, declarative_base
 from datetime import datetime
 import os
-DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./flowmint.db")
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+
+# Get DATABASE_URL from environment, fallback to SQLite for local/dev
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./flowmint.db").strip()
+
+# Render's Postgres sometimes starts with "postgres://", SQLAlchemy needs "postgresql://"
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# SQLite requires a special connect_arg, Postgres/MySQL do not
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+
+# Create the SQLAlchemy engine
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
+
+# Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Base class for models
 Base = declarative_base()
+
 
 # Database Models
 class User(Base):

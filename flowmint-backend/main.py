@@ -2,17 +2,21 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.users import router as users_router
 from routes.projects import router as projects_router
-from database import get_db, User, Project, Investment
+from database import get_db, User, Project, Investment, Base, engine
 from sqlalchemy.orm import Session
 import random
 from datetime import datetime
+import os
 
 app = FastAPI(title="FlowMint API", version="1.0.0")
 
-# Configure CORS
+# Configure CORS: allow localhost for dev, can override with env var for prod
+default_origins = "http://localhost:3000,http://127.0.0.1:3000"
+origins = os.environ.get("CORS_ORIGINS", default_origins).split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Frontend URLs
+    allow_origins=origins,  # Frontend URLs
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,12 +33,16 @@ async def root():
 @app.on_event("startup")
 async def startup_event():
     """Initialize demo data on startup"""
+    # Ensure database tables exist (important on fresh deploys)
+    Base.metadata.create_all(bind=engine)
+
     db = next(get_db())
-    
+
     # Check if demo data already exists
     if db.query(User).count() > 0:
+        db.close()
         return
-    
+
     # Create demo users
     demo_users = [
         {
@@ -70,17 +78,17 @@ async def startup_event():
             "profile_image_url": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
         }
     ]
-    
+
     for user_data in demo_users:
         user = User(**user_data)
         db.add(user)
-    
+
     db.commit()
-    
+
     # Get created users
     creators = db.query(User).filter(User.role == "creator").all()
     investors = db.query(User).filter(User.role == "investor").all()
-    
+
     # Create demo projects
     demo_projects = [
         {
@@ -117,16 +125,16 @@ async def startup_event():
             "creator_id": creators[0].id
         }
     ]
-    
+
     for project_data in demo_projects:
         project = Project(**project_data)
         db.add(project)
-    
+
     db.commit()
-    
+
     # Get created projects
     projects = db.query(Project).all()
-    
+
     # Create demo investments
     demo_investments = [
         {
@@ -158,14 +166,10 @@ async def startup_event():
             "project_id": projects[2].id
         }
     ]
-    
+
     for investment_data in demo_investments:
         investment = Investment(**investment_data)
         db.add(investment)
-    
+
     db.commit()
     db.close()
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
