@@ -8,7 +8,7 @@ A full-stack Web3 application that allows creators to tokenize their future reve
 - **Wallet-based authentication** with MetaMask integration
 - **Role-based access** (Creator/Investor)
 - **JWT token authentication** for secure API access
-- **User profiles** with bio, avatar, and verification status
+- **User profiles** with bio, avatar, and verification status 
 
 ### Creator Dashboard
 - **Project management** - Create, edit, and track projects
